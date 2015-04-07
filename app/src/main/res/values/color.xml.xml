@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_overlayimage">#BCFFFFFF</color>
+    <color name="color_overlayimage_press">#BCFF0000</color>
+    <color name="color_overlayimage_round">#EEEEEE</color>
+</resources>

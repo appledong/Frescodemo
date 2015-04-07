@@ -1,0 +1,69 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+    >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="单张图片显示"
+            android:textSize="25sp"
+            android:id="@+id/textview_sigle"
+            android:gravity="center_horizontal"/>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="list图片显示"
+            android:textSize="25sp"
+            android:id="@+id/textview_list"
+            android:gravity="center_horizontal"
+            android:layout_below="@+id/textview_sigle"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="photoview图片显示"
+            android:textSize="25sp"
+            android:id="@+id/textview_photoview"
+            android:gravity="center_horizontal"
+            android:layout_below="@+id/textview_list"
+            android:layout_marginTop="10dp"/>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="jpg图片的渐进式显示"
+            android:textSize="25sp"
+            android:id="@+id/textview_jpg"
+            android:gravity="center_horizontal"
+            android:layout_below="@+id/textview_list"
+            android:layout_marginTop="10dp"/>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="图片的后进式处理"
+            android:textSize="25sp"
+            android:id="@+id/textview_progress"
+            android:gravity="center_horizontal"
+            android:layout_below="@+id/textview_jpg"
+            android:layout_marginTop="10dp"/>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="图片先加载小图后加载大图"
+            android:textSize="25sp"
+            android:id="@+id/textview_daxiao"
+            android:gravity="center_horizontal"
+            android:layout_below="@+id/textview_progress"
+            android:layout_marginTop="10dp"/>
+    </LinearLayout>
+
+
+</RelativeLayout>

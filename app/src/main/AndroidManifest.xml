@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.dong.testfresco">
+
+    <application
+        android:name=".ImageApplication"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".activity.MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.ListPictureActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.SiglePictureActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.PhotoviewPictureActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.JpgPictureActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.BigPictureActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.ProcessPictureActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"/>
+    </application>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+</manifest>
