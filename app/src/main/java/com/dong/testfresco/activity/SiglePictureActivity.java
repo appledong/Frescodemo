@@ -71,8 +71,8 @@ public class SiglePictureActivity extends ActionBarActivity {
         simpleDraweeView5.setImageURI(Uri.parse(test_pic_url));
         /************************************ 设置view的scaltype *********************************/
         /************************************ 设置view的展位图进度条 *********************************/
-        SimpleDraweeView simpleDraweeView6 = (SimpleDraweeView) findViewById(R.id.my_image_view6);
-        simpleDraweeView6.setImageURI(Uri.parse("http://image.tianjimedia.com/uploadImages/2014/282/50/F35XBP96JTQ5.png"));//
+//        SimpleDraweeView simpleDraweeView6 = (SimpleDraweeView) findViewById(R.id.my_image_view6);
+//        simpleDraweeView6.setImageURI(Uri.parse("http://image.tianjimedia.com/uploadImages/2014/282/50/F35XBP96JTQ5.png"));//
         /************************************ 设置view的展位图进度条 *********************************/
         /************************************ 设置view的覆盖层 *********************************/
         SimpleDraweeView simpleDraweeView7 = (SimpleDraweeView) findViewById(R.id.my_image_view7);

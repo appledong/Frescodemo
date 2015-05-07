@@ -2,6 +2,7 @@ package com.dong.testfresco.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.widget.ImageView;
 
 import com.dong.testfresco.R;
 
@@ -19,7 +20,8 @@ public class PhotoviewPictureActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo);
         PhotoView frescoImageView = (PhotoView) findViewById(R.id.frescoImageView_test);
-        frescoImageView.setImageUrl(test_url,360,240);
+        frescoImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        frescoImageView.setImageUrl(test_url, 1080, 1920);
     }
 
     @Override

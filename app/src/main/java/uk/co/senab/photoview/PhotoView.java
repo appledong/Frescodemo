@@ -17,31 +17,34 @@ package uk.co.senab.photoview;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.graphics.PixelFormat;
 import android.graphics.RectF;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.widget.ImageView;
 
-import com.dong.testfresco.utils.DimensionPixelUtil;
+import com.facebook.common.references.CloseableReference;
+import com.facebook.datasource.BaseDataSubscriber;
+import com.facebook.datasource.DataSource;
+import com.facebook.datasource.DataSubscriber;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.controller.BaseControllerListener;
-import com.facebook.drawee.controller.ControllerListener;
 import com.facebook.drawee.generic.GenericDraweeHierarchy;
 import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.DraweeHolder;
 import com.facebook.imagepipeline.common.ResizeOptions;
+import com.facebook.imagepipeline.core.ImagePipeline;
+import com.facebook.imagepipeline.image.CloseableImage;
+import com.facebook.imagepipeline.image.CloseableStaticBitmap;
 import com.facebook.imagepipeline.image.ImageInfo;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
-
-import javax.annotation.Nullable;
 
 import uk.co.senab.photoview.PhotoViewAttacher.OnMatrixChangedListener;
 import uk.co.senab.photoview.PhotoViewAttacher.OnPhotoTapListener;
@@ -51,11 +54,19 @@ public class PhotoView extends ImageView implements IPhotoView {
 
     private Context myContext;
 
+    private CloseableReference<CloseableImage> imageReference = null;
+
     public DraweeHolder<GenericDraweeHierarchy> mDraweeHolder;
 
     private final PhotoViewAttacher mAttacher;
 
     private ScaleType mPendingScaleType;
+
+    private ImageLoadLintener imageLoadLintener;
+
+    public void setImageLoadLintener(ImageLoadLintener imageLoadLintener) {
+        this.imageLoadLintener = imageLoadLintener;
+    }
 
     public PhotoView(Context context) {
         this(context, null);
@@ -73,6 +84,8 @@ public class PhotoView extends ImageView implements IPhotoView {
         GenericDraweeHierarchy hierarchy = new GenericDraweeHierarchyBuilder(getResources())
 //                .setFailureImage(getResources().getDrawable(R.drawable.error), ScalingUtils.ScaleType.CENTER_CROP)
 //                .set //一些通用设置可以在这里进行设置，此处设置一个空的hierarchy为了加载图片
+//                .setPlaceholderImage(getResources().getDrawable(R.color.color_normal_gray_9), ScalingUtils.ScaleType.CENTER_CROP)
+//                .setBackground(getResources().getDrawable(R.color.color_normal_gray_9))
                 .build();
         mDraweeHolder = DraweeHolder.create(hierarchy, context);
         if (null != mPendingScaleType) {
@@ -243,46 +256,92 @@ public class PhotoView extends ImageView implements IPhotoView {
         }
     }
 
-    private int view_width;
+    DataSubscriber dataSubscriber = new BaseDataSubscriber() {
+        @Override
+        protected void onNewResultImpl(DataSource dataSource) {
 
-    private int view_height;
+        }
 
-    private Bitmap drawableToBitamp(Drawable drawable) {
-        int w = view_width;
-        int h = view_height;
-        System.out.println("Drawable转Bitmap");
-        Bitmap.Config config =
-                drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
-                        : Bitmap.Config.RGB_565;
-        Bitmap bitmap = Bitmap.createBitmap(w, h, config);
-        //注意，下面三行代码要用到，否在在View或者surfaceview里的canvas.drawBitmap会看不到图
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, w, h);
-        drawable.draw(canvas);
-        return bitmap;
-    }
+        @Override
+        protected void onFailureImpl(DataSource dataSource) {
 
-    public void setImageUrl(String url, int view_width_dp, int view_height_dp) {
-        view_width = (int) DimensionPixelUtil.getDimensionPixelSize(DimensionPixelUtil.DIP, view_width_dp, myContext);
-        view_height = (int) DimensionPixelUtil.getDimensionPixelSize(DimensionPixelUtil.DIP, view_height_dp, myContext);
+        }
+    };
+
+    public void setImageUrl(String url) {
         ImageRequest imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(url))
-                .setAutoRotateEnabled(true)
-                .setResizeOptions(new ResizeOptions(view_width, view_height))
                 .build();
+        ImagePipeline imagePipeline = Fresco.getImagePipeline();
+        final DataSource<CloseableReference<CloseableImage>> dataSource =
+                imagePipeline.fetchImageFromBitmapCache(imageRequest, this);
         DraweeController controller = Fresco.newDraweeControllerBuilder()
                 .setOldController(mDraweeHolder.getController())
                 .setImageRequest(imageRequest)
                 .setControllerListener(new BaseControllerListener<ImageInfo>() {
                     @Override
                     public void onFinalImageSet(String s, @Nullable ImageInfo imageInfo, @Nullable Animatable animatable) {
-                        GenericDraweeHierarchy hierarchy = mDraweeHolder.getHierarchy();
-                        Drawable drawable = hierarchy.getTopLevelDrawable();
-                        if (drawable != null) {
-                            Bitmap bitmap = drawableToBitamp(drawable);
-                            setImageBitmap(bitmap);
-                            if (null != mAttacher) {
-                                mAttacher.update();
+                        if (imageLoadLintener != null) {
+                            imageLoadLintener.loadCompelete();
+                        }
+                        try {
+                            imageReference = dataSource.getResult();
+                            if (imageReference != null) {
+                                CloseableImage image = imageReference.get();
+                                // do something with the image
+                                Log.e("dongdianzhou", image.toString());
+                                if (image != null && image instanceof CloseableStaticBitmap) {
+                                    CloseableStaticBitmap closeableStaticBitmap = (CloseableStaticBitmap) image;
+                                    Bitmap bitmap = closeableStaticBitmap.getUnderlyingBitmap();
+                                    if (bitmap != null) {
+                                        setImageBitmap(bitmap);
+                                    }
+                                }
                             }
+                        } finally {
+                            dataSource.close();
+                            CloseableReference.closeSafely(imageReference);
+                        }
+                    }
+                })
+                .setTapToRetryEnabled(true)
+                .build();
+        mDraweeHolder.setController(controller);
+    }
+
+    public void setImageUrl(String url, int view_width_dp, int view_height_dp) {
+        ImageRequest imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(url))
+                .setAutoRotateEnabled(true)
+                .setResizeOptions(new ResizeOptions(view_width_dp, view_height_dp))
+                .build();
+        ImagePipeline imagePipeline = Fresco.getImagePipeline();
+        final DataSource<CloseableReference<CloseableImage>> dataSource =
+                imagePipeline.fetchDecodedImage(imageRequest, this);//fetchImageFromBitmapCache(imageRequest, this)
+//        dataSource.subscribe(dataSubscriber,this);
+        DraweeController controller = Fresco.newDraweeControllerBuilder()
+                .setOldController(mDraweeHolder.getController())
+                .setImageRequest(imageRequest)
+                .setControllerListener(new BaseControllerListener<ImageInfo>() {
+                    @Override
+                    public void onFinalImageSet(String s, @Nullable ImageInfo imageInfo, @Nullable Animatable animatable) {
+                        if (imageLoadLintener != null) {
+                            imageLoadLintener.loadCompelete();
+                        }
+                        try {
+                            imageReference = dataSource.getResult();
+                            if (imageReference != null) {
+                                CloseableImage image = imageReference.get();
+                                Log.e("dongdianzhou", image.toString());
+                                if (image != null && image instanceof CloseableStaticBitmap) {
+                                    CloseableStaticBitmap closeableStaticBitmap = (CloseableStaticBitmap) image;
+                                    Bitmap bitmap = closeableStaticBitmap.getUnderlyingBitmap();
+                                    if (bitmap != null) {
+                                        setImageBitmap(bitmap);
+                                    }
+                                }
+                            }
+                        } finally {
+                            dataSource.close();
+                            CloseableReference.closeSafely(imageReference);
                         }
                     }
                 })
